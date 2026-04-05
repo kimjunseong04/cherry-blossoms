@@ -381,6 +381,53 @@ window.addEventListener('mouseup', () => {
     mouse.isDown = false;
 });
 
+// 마우스가 화면 밖으로 나갈 때 좌표 초기화 (벚꽃들이 테두리에 계속 튕기는 현상 방지)
+window.addEventListener('mouseleave', () => {
+    mouse.isDown = false;
+    mouse.x = -1000;
+    mouse.y = -1000;
+});
+
+// 모바일 터치 지원: 터치를 마우스 클릭처럼 처리
+window.addEventListener('touchstart', (e) => {
+    if (e.touches.length > 0) {
+        mouse.isDown = true;
+        const touch = e.touches[0];
+        const mx = touch.clientX;
+        const my = touch.clientY;
+        mouse.lastX = mouse.x = mx;
+        mouse.lastY = mouse.y = my;
+
+        trees.forEach(t => {
+            if (t.contains(mx, my)) blossomBurst(t);
+        });
+    }
+}, { passive: true });
+
+window.addEventListener('touchmove', (e) => {
+    if (e.touches.length > 0) {
+        const touch = e.touches[0];
+        mouse.vx = touch.clientX - mouse.lastX;
+        mouse.vy = touch.clientY - mouse.lastY;
+        mouse.lastX = mouse.x = touch.clientX;
+        mouse.lastY = mouse.y = touch.clientY;
+    }
+}, { passive: true });
+
+// 모바일 화면에서 손을 뗄 때 (터치 종료) 인터랙션 위치도 화면 밖으로 치워줌
+// 이 처리가 없으면 화면의 마지막 터치 위치에 벚꽃들이 계속해서 반응하며 쌓이는 문제가 생김
+window.addEventListener('touchend', () => {
+    mouse.isDown = false;
+    mouse.x = -1000;
+    mouse.y = -1000;
+});
+
+window.addEventListener('touchcancel', () => {
+    mouse.isDown = false;
+    mouse.x = -1000;
+    mouse.y = -1000;
+});
+
 window.addEventListener('dblclick', (e) => {
     if (Date.now() - lastTreeClickTime < 400) return; // 나무 클릭 직후엔 무시
     if (e.target === canvas) {
@@ -580,9 +627,19 @@ function init() {
 }
 
 function resize(isInit = false) { // 화면 크기 조절
+    const oldGroundY = groundY; // 창 크기 조절 전의 기존 바닥 높이 기억
     width = canvas.width = window.innerWidth;
     height = canvas.height = window.innerHeight;
     groundY = height - 40; 
+
+    // 화면이 회전되거나 창 크기가 변해서 바닥 높이가 달라진 경우
+    // 기존에 바닥에 떨어져 있던 벚꽃들이 허공에 떠있거나 땅속에 파묻히지 않도록, 
+    // 바닥이 변한 만큼 벚꽃들도 전부 위아래로 같이 이동시켜 줌 (`diffY`).
+    if (!isInit && oldGroundY && oldGroundY !== groundY) {
+        const diffY = groundY - oldGroundY;
+        groundPetals.forEach(p => { p.y += diffY; });
+        burstPetals.forEach(p => { if (p.isGrounded) p.y += diffY; });
+    }
 
     if (isInit) {
         createInitialTrees();
