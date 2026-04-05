@@ -1,0 +1,156 @@
+/* 
+   벚꽃 페이지 스타일링 
+   Tailwind로 다 안 되는 세밀한 효과(글래스모피즘, 애니메이션 등)만 담았음 
+*/
+
+:root {
+    --pink-light: #fce4ec;
+    --pink-main:  #f8bbd0;
+    --pink-dark:  #f06292;
+    --glass-bg:   rgba(255, 255, 255, 0.4);
+    --glass-border: rgba(255, 255, 255, 0.2);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* 밤 모드 배경 - 더블클릭하면 전환됨 */
+body[data-theme="dark"] {
+    background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%);
+    color: #fce4ec;
+}
+
+/* 밤 모드일 때 카드 스타일 - 좀 더 어둡고 깊이감 있게 */
+body[data-theme="dark"] .glass-shadow {
+    background: rgba(30, 27, 75, 0.75) !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* 라이트 모드 글래스 카드 글자색 - 흰 배경에서 잘 보여야 하니까 진한 핑크로 */
+.glass-shadow p,
+.glass-shadow h1,
+.glass-shadow h2,
+.glass-shadow span {
+    color: #be185d;
+}
+
+.glass-shadow h1 {
+    color: #ec4899 !important; /* 타이틀은 포인트 색상 */
+}
+
+/* 밤 모드 글자색 - 연한 핑크로 반전 */
+body[data-theme="dark"] .glass-shadow p,
+body[data-theme="dark"] .glass-shadow span {
+    color: #fbcfe8 !important;
+}
+
+/* 몰입 모드 UI 숨기기 - 슥 사라지는 느낌 */
+.ui-hidden {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translateY(-20px);
+}
+
+/* 몰입 모드에서 살짝 보이는 'UI 보이기' 버튼 */
+.exit-ghost {
+    opacity: 0.35 !important;
+    pointer-events: auto !important;
+}
+
+.exit-ghost:hover {
+    opacity: 1 !important;
+    transform: scale(1.05);
+}
+
+/* 유리 질감 효과 */
+.glass-shadow {
+    box-shadow: 0 8px 32px 0 rgba(244, 143, 177, 0.2);
+    background: rgba(255, 255, 255, 0.90);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 하위 버튼들 스타일 살짝 보정 */
+#toggle-immersion {
+    background: rgba(253, 242, 248, 0.95) !important;
+    border: 1.5px solid #f9a8d4 !important;
+    color: #9d174d !important;
+    font-weight: 600;
+}
+
+body[data-theme="dark"] #toggle-immersion {
+    background: rgba(88, 28, 135, 0.4) !important;
+    border: 1.5px solid rgba(216, 180, 254, 0.3) !important;
+    color: #fbcfe8 !important;
+}
+
+/* 좌측 하단 정보 카드 */
+.status-card {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(200, 200, 200, 0.4);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.status-card p,
+.status-card span {
+    color: #9d174d !important;
+}
+
+body[data-theme="dark"] .status-card {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body[data-theme="dark"] .status-card p,
+body[data-theme="dark"] .status-card span {
+    color: #fbcfe8 !important;
+}
+
+/* 모바일 화면 대응 */
+@media (max-width: 768px) {
+    .glass-shadow {
+        padding: 1.5rem !important;
+    }
+}
+
+/* 캔버스에 먹일 미세한 블룸 필터 */
+.bloom-filter {
+    filter: url(#soft-bloom);
+    transform: translateZ(0);
+    will-change: transform;
+}
+
+/* 버튼 눌러보고 싶게 만드는 숨쉬기 애니메이션 */
+@keyframes soft-pulse {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+.pulse-btn:hover {
+    animation: soft-pulse 2s infinite ease-in-out;
+}
+
+canvas#cherry-blossoms {
+    display: block;
+}
+
+/* 스크롤바 디자인 - 거의 안 보이겠지만 매너상 */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--pink-main);
+    border-radius: 3px;
+}

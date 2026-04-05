@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>개발자가 봄을 보내는 방식</title>
+
+    <!-- UI 꾸미기용 Tailwind랑 폰트들 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Noto+Sans+KR:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            overflow: hidden;
+            /* 스크롤바 안 생기게 막아둠 */
+            background: linear-gradient(180deg, #fce4ec 0%, #ffffff 100%);
+        }
+
+        .dancing-script {
+            font-family: 'Dancing Script', cursive;
+        }
+    </style>
+</head>
+
+<body class="h-screen w-full relative transition-colors duration-1000" style="height: 100dvh;">
+
+    <!-- 캔버스에 뽀샤시한 효과 주는 필터 (SVG로 만듦) -->
+    <svg width="0" height="0" class="absolute pointer-events-none">
+        <filter id="soft-bloom" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+    </svg>
+
+    <!-- 벚꽃 캔버스 -->
+    <canvas id="cherry-blossoms" class="absolute top-0 left-0 w-full h-full bloom-filter cursor-crosshair"></canvas>
+
+    <!-- 인터랙션이랑 설명 담긴 UI 레이어 -->
+    <div id="main-ui" class="transition-opacity duration-700">
+
+        <!-- 상단 타이틀 카드 -->
+        <div class="absolute inset-x-0 top-8 md:top-12 flex justify-center z-10 px-4">
+            <div
+                class="glass-shadow p-6 md:p-8 rounded-3xl max-w-lg w-full text-center transform hover:scale-[1.02] transition-all duration-700">
+                <h1 class="text-4xl md:text-5xl font-bold text-pink-500 mb-2 dancing-script cursor-pointer select-none">
+                    Spring Breeze</h1>
+
+                <p class="font-normal leading-relaxed text-sm md:text-base">
+                    바쁜 일상 속에서 잊고 지낸 봄을 보여드리고 싶었습니다.<br>
+                    살랑이는 꽃바람을 느껴보세요.
+                </p>
+                <p class="text-xs md:text-sm mt-2">
+                    개발자가 봄을 보내는 방식
+                </p>
+
+                <div class="mt-6 flex flex-wrap justify-center gap-3 md:gap-4">
+                    <button id="reset-petals"
+                        class="bg-pink-400 hover:bg-pink-500 text-white px-6 py-2.5 rounded-full text-sm font-medium shadow-md transition-all pulse-btn flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        바닥 청소하기
+                    </button>
+
+                    <button id="toggle-immersion" class="px-6 py-2.5 rounded-full text-sm flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        몰입모드
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 하단 영역 (컨테이너로 묶어 모바일 반응형 처리) -->
+        <div class="absolute bottom-4 inset-x-4 md:bottom-8 md:inset-x-8 z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-3 pointer-events-none">
+            
+            <!-- 좌측 하단 정보창 -->
+            <div class="status-card p-3 md:p-4 rounded-2xl flex flex-col gap-1 min-w-[180px] pointer-events-auto">
+                <p id="wind-speed" class="text-[10px] md:text-xs font-medium">바람: 잔잔함</p>
+                <div class="h-[1px] bg-gray-400/30 my-1"></div>
+                <p class="text-[9px] md:text-[10px] leading-tight opacity-80">
+                    배경 더블클릭: 야간모드<br>
+                    타이틀 클릭: 돌풍 이벤트
+                </p>
+            </div>
+
+            <!-- 우측 하단 개발자 정보 & 레포 링크 -->
+            <div class="status-card p-2 md:p-3 rounded-2xl flex items-center gap-3 self-start md:self-auto pointer-events-auto">
+                <div class="flex flex-col">
+                    <span class="text-[9px] md:text-[10px] opacity-60">Developer</span>
+                    <span class="text-[10px] md:text-xs font-semibold">kimjunseong04</span>
+                </div>
+                <div class="h-6 w-[1px] bg-gray-400/30"></div>
+                <a href="https://github.com/kimjunseong04/cherry-blossoms" target="_blank"
+                    class="p-2 hover:bg-pink-100 dark:hover:bg-pink-900/40 rounded-xl transition-colors"
+                    title="GitHub Repository">
+                    <svg class="w-5 h-5 opacity-80" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.43.372.823 1.102.823 2.222 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 몰입 모드에서 탈출할 때 쓰는 버튼 (평소엔 숨김) -->
+    <button id="exit-immersion"
+        class="fixed top-6 right-6 z-50 opacity-0 pointer-events-none transition-all duration-500 px-5 py-2 glass-shadow rounded-full text-xs font-medium flex items-center gap-2">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        </svg>
+        UI 보이기 (M)
+    </button>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
