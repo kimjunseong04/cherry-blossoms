@@ -628,17 +628,35 @@ function init() {
 
 function resize(isInit = false) { // 화면 크기 조절
     const oldGroundY = groundY; // 창 크기 조절 전의 기존 바닥 높이 기억
+    const oldWidth = width; // 창 크기 조절 전의 기존 창 너비 기억
+    
     width = canvas.width = window.innerWidth;
     height = canvas.height = window.innerHeight;
     groundY = height - 40; 
 
-    // 화면이 회전되거나 창 크기가 변해서 바닥 높이가 달라진 경우
-    // 기존에 바닥에 떨어져 있던 벚꽃들이 허공에 떠있거나 땅속에 파묻히지 않도록, 
-    // 바닥이 변한 만큼 벚꽃들도 전부 위아래로 같이 이동시켜 줌 (`diffY`).
-    if (!isInit && oldGroundY && oldGroundY !== groundY) {
+    // 화면이 회전되거나 창 크기가 변해서 바닥 높이나 너비가 달라진 경우
+    // 기존에 바닥에 떨어져 있던 벚꽃들이나 공중에 흩날리는 벚꽃들이
+    // 나무나 바닥과 따로 놀지 않도록 X축(가로비율)과 Y축(바닥차이)을 함께 맞춰줍니다.
+    if (!isInit && oldGroundY && oldWidth) {
         const diffY = groundY - oldGroundY;
-        groundPetals.forEach(p => { p.y += diffY; });
-        burstPetals.forEach(p => { if (p.isGrounded) p.y += diffY; });
+        const scaleX = width / oldWidth;
+
+        // 바닥에 떨어진 벚꽃 위치 비례해서 조정
+        groundPetals.forEach(p => { 
+            p.y += diffY; 
+            p.x *= scaleX; 
+        });
+        
+        // 나무 치고 나서 공중에 흩날리는 벚꽃들 위치 조정 (나무가 이동한 만큼 Y축 이동 및 X축 비율 조정)
+        burstPetals.forEach(p => { 
+            p.y += diffY; 
+            p.x *= scaleX; 
+        });
+
+        // 일반 벚꽃들도 가로 비율에 맞춰 자연스럽게 분산시켜 줌
+        petals.forEach(p => { 
+            p.x *= scaleX; 
+        });
     }
 
     if (isInit) {
